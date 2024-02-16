@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer-when-downgrade" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Information</title>
+</head>
+<body>
+<h1>Weather Information</h1>
+<div id="weather-info"></div>
+
+<script>
+    function getWeather() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/api/weather', true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                var weatherData = JSON.parse(xhr.responseText);
+                displayWeather(weatherData);
+            }
+        };
+        console.log(xhr);
+        xhr.send();
+    }
+
+    function displayWeather(weatherData) {
+        var weatherInfoDiv = document.getElementById('weather-info');
+        var weatherHtml = '<h2>Current Weather</h2>';
+        weatherHtml += '<p>Description: ' + weatherData.weather[0].description + '</p>';
+        weatherHtml += '<p>Temperature: ' + weatherData.main.temp + '°C</p>';
+        weatherHtml += '<p>Humidity: ' + weatherData.main.humidity + '%</p>';
+        weatherInfoDiv.innerHTML = weatherHtml;
+        console.log(weatherHtml,weatherData);
+    }
+
+    // 페이지 로드 시 날씨 정보 가져오기
+    getWeather();
+</script>
+</body>
+</html>

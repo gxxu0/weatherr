@@ -2,40 +2,210 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="referrer" content="no-referrer-when-downgrade" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>Weather Information</title>
+    <script crossorigin="anonymous" src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ol@v8.2.0/dist/ol.js"></script>
+    <link href="./ol.css?ver=1" rel="stylesheet" type="text/css"/>
+    <script src="./ol.js?ver=1"></script>
+    <script src="./proj4.js"></script>
+    <script src="https://openlayers.org/en/v3.20.1/build/ol.js?ver=1" type="text/javascript"></script>
+
+    <link href="./index.css" rel="stylesheet" type="text/css"/>
+    <script src="index.js"></script>
+
 </head>
 <body>
-<h1>Weather Information</h1>
-<div id="weather-info"></div>
+<header>
+    <a href="/">
+        <h3>
+            <svg class="icon icon-tabler icon-tabler-sun-filled" fill="#E60012" height="40"
+                 stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24"
+                 width="40" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0 0h24v24H0z" fill="none" stroke="none"/>
+                <path d="M12 19a1 1 0 0 1 .993 .883l.007 .117v1a1 1 0 0 1 -1.993 .117l-.007 -.117v-1a1 1 0 0 1 1 -1z"
+                      fill="currentColor" stroke-width="0"/>
+                <path d="M18.313 16.91l.094 .083l.7 .7a1 1 0 0 1 -1.32 1.497l-.094 -.083l-.7 -.7a1 1 0 0 1 1.218 -1.567l.102 .07z"
+                      fill="currentColor" stroke-width="0"/>
+                <path d="M7.007 16.993a1 1 0 0 1 .083 1.32l-.083 .094l-.7 .7a1 1 0 0 1 -1.497 -1.32l.083 -.094l.7 -.7a1 1 0 0 1 1.414 0z"
+                      fill="currentColor" stroke-width="0"/>
+                <path d="M4 11a1 1 0 0 1 .117 1.993l-.117 .007h-1a1 1 0 0 1 -.117 -1.993l.117 -.007h1z" fill="currentColor"
+                      stroke-width="0"/>
+                <path d="M21 11a1 1 0 0 1 .117 1.993l-.117 .007h-1a1 1 0 0 1 -.117 -1.993l.117 -.007h1z"
+                      fill="currentColor" stroke-width="0"/>
+                <path d="M6.213 4.81l.094 .083l.7 .7a1 1 0 0 1 -1.32 1.497l-.094 -.083l-.7 -.7a1 1 0 0 1 1.217 -1.567l.102 .07z"
+                      fill="currentColor" stroke-width="0"/>
+                <path d="M19.107 4.893a1 1 0 0 1 .083 1.32l-.083 .094l-.7 .7a1 1 0 0 1 -1.497 -1.32l.083 -.094l.7 -.7a1 1 0 0 1 1.414 0z"
+                      fill="currentColor" stroke-width="0"/>
+                <path d="M12 2a1 1 0 0 1 .993 .883l.007 .117v1a1 1 0 0 1 -1.993 .117l-.007 -.117v-1a1 1 0 0 1 1 -1z"
+                      fill="currentColor" stroke-width="0"/>
+                <path d="M12 7a5 5 0 1 1 -4.995 5.217l-.005 -.217l.005 -.217a5 5 0 0 1 4.995 -4.783z" fill="currentColor"
+                      stroke-width="0"/>
+            </svg>
+            Weather Information
+        </h3>
+    </a>
+</header>
+<main>
+    <section id="section1">
+        <div class="map" id="map">
+            <div id="location">
+                <div>
+                    <button id="btn-current" title="현재위치">
+                        <svg class="icon icon-tabler icon-tabler-current-location" fill="none" height="24"
+                             stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                             viewBox="0 0 24 24"
+                             width="24"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path d="M0 0h24v24H0z" fill="none" stroke="none"/>
+                            <path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/>
+                            <path d="M12 12m-8 0a8 8 0 1 0 16 0a8 8 0 1 0 -16 0"/>
+                            <path d="M12 2l0 2"/>
+                            <path d="M12 20l0 2"/>
+                            <path d="M20 12l2 0"/>
+                            <path d="M2 12l2 0"/>
+                        </svg>
+                    </button>
+                    <span id="current"></span>
+                    <div id="weather-info"></div>
+                </div>
+                <div>
+                    <select id="baseLayer"></select>
+                </div>
 
-<script>
-    function getWeather() {
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', '/api/weather', true);
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                var weatherData = JSON.parse(xhr.responseText);
-                displayWeather(weatherData);
-            }
-        };
-        console.log(xhr);
-        xhr.send();
-    }
+            </div>
+        </div>
+    </section>
+    <section id="section2">
+        <div style="display: flex;align-items: flex-end;justify-content: space-between;">
+            <div id="insertBtn" onclick="showPopup();">
+                <button id="db-add" title="추가">
+                    <svg class="icon icon-tabler icon-tabler-square-rounded-plus"
+                         fill="none" height="24" stroke="currentColor"
+                         stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                         viewBox="0 0 24 24"
+                         width="24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0 0h24v24H0z" fill="none" stroke="none"/>
+                        <path d="M12 3c7.2 0 9 1.8 9 9s-1.8 9 -9 9s-9 -1.8 -9 -9s1.8 -9 9 -9z"/>
+                        <path d="M15 12h-6"/>
+                        <path d="M12 9v6"/>
+                    </svg>
+                </button>
+            </div>
+            <div style="font-weight: 700;">예보시점</div>
+        </div>
+        <div id="weather-db">
+            <div id="db-div-table">
+                <div id="db-div-explanation"><b>지<br/>역<br/>별<br/>위<br/>치</b></div>
+                <table border="1" id="db-table">
+                    <colgroup>
+                        <col width="50"/>
+                        <col width="200"/>
+                        <col width="100"/>
+                        <col width="150"/>
+                        <col width="50"/>
+                        <col width="50"/>
+                        <col width="50"/>
+                        <col width="50"/>
+                    </colgroup>
+                    <thead id="db-table-thead">
+                    <tr>
+                        <th>위치 코드</th>
+                        <th>시도</th>
+                        <th>구</th>
+                        <th>동</th>
+                        <th>경도</th>
+                        <th>위도</th>
+                        <th>x좌표</th>
+                        <th>y좌표</th>
+                        <th>Edit</th>
+                        <th>Del</th>
+                    </tr>
+                    </thead>
+                    <tbody id="db-table-tbody">
+                    <tr></tr>
+                    </tbody>
+                </table>
+                <div id="pagination"></div>
+            </div>
 
-    function displayWeather(weatherData) {
-        var weatherInfoDiv = document.getElementById('weather-info');
-        var weatherHtml = '<h2>Current Weather</h2>';
-        weatherHtml += '<p>Description: ' + weatherData.weather[0].description + '</p>';
-        weatherHtml += '<p>Temperature: ' + weatherData.main.temp + '°C</p>';
-        weatherHtml += '<p>Humidity: ' + weatherData.main.humidity + '%</p>';
-        weatherInfoDiv.innerHTML = weatherHtml;
-        console.log(weatherHtml,weatherData);
-    }
+            <div id="api-sido-btn">
+            </div>
+            <div id="api-div">
+                <div id="api-div-explanation"><b>위<br/>치<br/>별<br/>날<br/>씨</b></div>
+                <table border="1" id="api-table">
+                    <colgroup>
+                        <col width="250"/>
+                        <col width="100"/>
+                        <col width="100"/>
+                        <col width="100"/>
+                        <col width="150"/>
+                        <col width="150"/>
+                    </colgroup>
+                    <thead id="api-table-thead">
+                    <tr>
+                        <th>위치</th>
+                        <th>기온</th>
+                        <th>최저기온</th>
+                        <th>최고기온</th>
+                        <th>습도</th>
+                        <th>
+                            <svg class="icon icon-tabler icon-tabler-sun-filled" fill="none"
+                                 height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                 stroke-width="1.5"
+                                 viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M0 0h24v24H0z" fill="none" stroke="none"/>
+                                <path d="M12 19a1 1 0 0 1 .993 .883l.007 .117v1a1 1 0 0 1 -1.993 .117l-.007 -.117v-1a1 1 0 0 1 1 -1z"
+                                      fill="currentColor" stroke-width="0"/>
+                                <path d="M18.313 16.91l.094 .083l.7 .7a1 1 0 0 1 -1.32 1.497l-.094 -.083l-.7 -.7a1 1 0 0 1 1.218 -1.567l.102 .07z"
+                                      fill="currentColor" stroke-width="0"/>
+                                <path d="M7.007 16.993a1 1 0 0 1 .083 1.32l-.083 .094l-.7 .7a1 1 0 0 1 -1.497 -1.32l.083 -.094l.7 -.7a1 1 0 0 1 1.414 0z"
+                                      fill="currentColor" stroke-width="0"/>
+                                <path d="M4 11a1 1 0 0 1 .117 1.993l-.117 .007h-1a1 1 0 0 1 -.117 -1.993l.117 -.007h1z"
+                                      fill="currentColor" stroke-width="0"/>
+                                <path d="M21 11a1 1 0 0 1 .117 1.993l-.117 .007h-1a1 1 0 0 1 -.117 -1.993l.117 -.007h1z"
+                                      fill="currentColor" stroke-width="0"/>
+                                <path d="M6.213 4.81l.094 .083l.7 .7a1 1 0 0 1 -1.32 1.497l-.094 -.083l-.7 -.7a1 1 0 0 1 1.217 -1.567l.102 .07z"
+                                      fill="currentColor" stroke-width="0"/>
+                                <path d="M19.107 4.893a1 1 0 0 1 .083 1.32l-.083 .094l-.7 .7a1 1 0 0 1 -1.497 -1.32l.083 -.094l.7 -.7a1 1 0 0 1 1.414 0z"
+                                      fill="currentColor" stroke-width="0"/>
+                                <path d="M12 2a1 1 0 0 1 .993 .883l.007 .117v1a1 1 0 0 1 -1.993 .117l-.007 -.117v-1a1 1 0 0 1 1 -1z"
+                                      fill="currentColor" stroke-width="0"/>
+                                <path d="M12 7a5 5 0 1 1 -4.995 5.217l-.005 -.217l.005 -.217a5 5 0 0 1 4.995 -4.783z"
+                                      fill="currentColor" stroke-width="0"/>
+                            </svg>
+                            <svg class="icon icon-tabler icon-tabler-cloud-filled" fill="none"
+                                 height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                 stroke-width="1.5"
+                                 viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M0 0h24v24H0z" fill="none" stroke="none"/>
+                                <path d="M10.04 4.305c2.195 -.667 4.615 -.224 6.36 1.176c1.386 1.108 2.188 2.686 2.252 4.34l.003 .212l.091 .003c2.3 .107 4.143 1.961 4.25 4.27l.004 .211c0 2.407 -1.885 4.372 -4.255 4.482l-.21 .005h-11.878l-.222 -.008c-2.94 -.11 -5.317 -2.399 -5.43 -5.263l-.005 -.216c0 -2.747 2.08 -5.01 4.784 -5.417l.114 -.016l.07 -.181c.663 -1.62 2.056 -2.906 3.829 -3.518l.244 -.08z"
+                                      fill="currentColor" stroke-width="0"/>
+                            </svg>
+                            <svg class="icon icon-tabler icon-tabler-umbrella-filled" fill="none"
+                                 height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                 stroke-width="1.5"
+                                 viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M0 0h24v24H0z" fill="none" stroke="none"/>
+                                <path d="M12 3a9 9 0 0 1 9 9a1 1 0 0 1 -.883 .993l-.117 .007h-7v5a1 1 0 0 0 1.993 .117l.007 -.117a1 1 0 0 1 2 0a3 3 0 0 1 -5.995 .176l-.005 -.176v-5h-7a1 1 0 0 1 -.993 -.883l-.007 -.117a9 9 0 0 1 9 -9z"
+                                      fill="currentColor" stroke-width="0"/>
+                            </svg>
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody id="api-table-tbody">
+                    <tr>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="api-pagination"></div>
+        </div>
+    </section>
+</main>
 
-    // 페이지 로드 시 날씨 정보 가져오기
-    getWeather();
-</script>
+<footer>
+    <img src="img/inspien_logo.png">
+</footer>
 </body>
 </html>
